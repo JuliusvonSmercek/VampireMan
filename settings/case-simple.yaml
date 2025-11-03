@@ -1,0 +1,95 @@
+general:
+  output_directory: ./datasets_out/case-simple
+  number_cells: [512,512,1]
+  number_datapoints: 2
+heatpump_parameters:
+  hps:
+    vary: spatially_vary_within_datapoint
+    value:
+      injection_temp:
+        time_unit: year
+        values:
+          0:
+            min: 13.6
+            max: 15.5
+          0.5: 10
+          1:
+            min: 13.6
+            max: 15.5
+          1.5: 10
+          2:
+            min: 13.6
+            max: 15.5
+          2.5: 10
+          3:
+            min: 13.6
+            max: 15.5
+          3.5: 10
+          4:
+            min: 13.6
+            max: 15.5
+          4.5: 10
+          5:
+            min: 13.6
+            max: 15.5
+          5.5: 10
+          6:
+            min: 13.6
+            max: 15.5
+          6.5: 10
+          7:
+            min: 13.6
+            max: 15.5
+          7.5: 10
+      injection_rate:
+        time_unit: year
+        values:
+          0:
+            min: 0.00024
+            max: 0.00048
+          0.5: 0
+          1:
+            min: 0.00024
+            max: 0.00048
+          1.5: 0
+          2:
+            min: 0.00024
+            max: 0.00048
+          2.5: 0
+          3:
+            min: 0.00024
+            max: 0.00048
+          3.5: 0
+          4:
+            min: 0.00024
+            max: 0.00048
+          4.5: 0
+          5:
+            min: 0.00024
+            max: 0.00048
+          5.5: 0
+          6:
+            min: 0.00024
+            max: 0.00048
+          6.5: 0
+          7:
+            min: 0.00024
+            max: 0.00048
+          7.5: 0
+      number: 10
+hydrogeological_parameters:
+  pressure_gradient:
+    vary: const_within_datapoint
+    value:
+      max: -0.0015
+      min: -0.0035
+  permeability:
+    vary: const_within_datapoint
+    distribution: logarithmic
+    value:
+      max: 5.09683995922528e-09
+      min: 1.0193679918450561e-11
+  porosity:
+    value: 0.25
+  vertical_anisotropy_ratio:
+    value: 10
