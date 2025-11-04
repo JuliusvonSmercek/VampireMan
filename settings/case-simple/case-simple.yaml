@@ -1,0 +1,25 @@
+general:
+  output_directory: ./datasets_out/case-simple
+  number_cells: [512,512,1]
+  number_datapoints: 2
+heatpump_parameters:
+  hps:
+    vary: spatially_vary_within_datapoint
+    value: ./settings/case-simple/hps_settings.json
+hydrogeological_parameters:
+  pressure_gradient:
+    vary: fixed
+    value: -0.0025
+  permeability:
+    vary: spatially_vary_within_datapoint
+    distribution: logarithmic
+    value:
+      frequency:
+        min: 18
+        max: 19
+      max: 1.29e-9
+      min: 1.28e-9
+  porosity:
+    value: 0.25
+  vertical_anisotropy_ratio:
+    value: 10
