@@ -1,0 +1,42 @@
+# This setting has one hp that switches off after some time.
+#
+# grid: 2D unstructured (converted to 3D with z = 1) -> (32, 512, 1)
+# datapoint(s): 1
+# heat pump(s): 2 fix
+# permeability: fix
+# pressure gradient: fix
+# temperature: fix
+
+general:
+  output_directory: ./datasets_out/case20_on_off
+  number_datapoints: 1
+  number_cells: [32, 512, 1]
+heatpump_parameters:
+  hp1:
+    vary: fixed
+    value:
+      location: [20, 32, 1]
+      injection_temp:
+        time_unit: year
+        values:
+          0: 15.6
+          1: 15.6
+          2: 15.6
+          3: 15.6
+      injection_rate:
+        time_unit: year
+        values:
+          0.0:       0.00024    # ON at year start
+          0.499999:  0.00024    # keep ON until just before mid-year
+          0.5:       0.0        # OFF at mid-year
+          0.999999:  0.0        # stay OFF until just before next year
+          1.0:       0.00024
+          1.499999:  0.00024
+          1.5:       0.0
+          1.999999:  0.0
+          2.0:       0.00024
+          2.499999:  0.00024
+          2.5:       0.0
+          2.999999:  0.0
+          3.0:       0.00024 
+          
