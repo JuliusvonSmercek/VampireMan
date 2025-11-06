@@ -17,7 +17,10 @@ max_val = time_series["water_ratio"].max()
 # 3. Create normalized base arrays
 time_norm = np.arange(num_time_steps) / num_time_steps
 ratio_norm = (time_series["water_ratio"] - min_val) / (max_val - min_val)
-ratio_scaled = ratio_norm * 0.00024
+
+# 1 = 10 L/s = 0.01 m3/s 
+# 0 = 1 l/s = 0.0001 m3/s
+ratio_scaled = ratio_norm * (0.01 - 0.0001) + 0.0001
 
 # 4. Create output array for all years
 output = np.zeros((years * num_time_steps, 2))

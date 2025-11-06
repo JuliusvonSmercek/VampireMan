@@ -157,7 +157,9 @@ def generate_heatpump_location(state: State) -> list[float]:
     """
 
     random_vector = state.get_rng().random(3)
-    random_location = random_vector * cast(np.ndarray, state.general.number_cells)
+    number_cells = np.array([360,360,1])
+    viable_cells = number_cells + [76,76,1] # To avoid placing heat pumps on the edges
+    random_location = random_vector * cast(np.ndarray, number_cells)
     return cast(list[float], np.ceil(random_location).tolist())
 
 
