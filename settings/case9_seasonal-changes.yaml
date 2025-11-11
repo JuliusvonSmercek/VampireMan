@@ -8,7 +8,7 @@
 # temperature: fix
 
 general:
-  output_directory: ./datasets_out/case9_seasonal-changes
+  output_directory: ./datasets_out/case9_seasonal-changes-varyk
   number_datapoints: 1
   number_cells: [32, 512, 1]
 heatpump_parameters:
@@ -56,3 +56,14 @@ heatpump_parameters:
           4.5: 0.00048
           5: 0.00024
           6: 0.00048
+
+hydrogeological_parameters:
+  permeability:
+    vary: spatially_vary_within_datapoint
+    distribution: logarithmic
+    value:
+      frequency:
+        min: 18
+        max: 19
+      max: 5.09683995922528e-9
+      min: 1.09683995922528e-9
