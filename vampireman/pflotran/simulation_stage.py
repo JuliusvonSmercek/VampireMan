@@ -2,7 +2,6 @@ import logging
 import os
 import subprocess
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from ..data_structures import State
 from ..utils import get_answer
@@ -18,27 +17,26 @@ def run_simulation(datapoint_path, state):
   stderr_file_path = os.path.join(datapoint_path, "simulation_stderr.log")
 
   command: list[str] = []
-  use_gpu = False
-  if use_gpu:
-    command += ["mpirun", "-n", "2", # use number of gpus available
-                "pflotran",
-                "-vec_type", "cuda",
-                "-mat_type", "aijcusparse",
-                "-dm_vec_type", "cuda",
-                "-dm_mat_type", "aijcusparse",
-                "-flow_vec_type", "cuda",
-                "-flow_mat_type", "aijcusparse",
-                "-snes_type", "newtonls",
-                # "-ksp_type", "cg", "-pc_type", "jacobi", # or
-                "-ksp_type", "gmres", "-pc_type", "gamg"]
-  else:
-    if state.general.mpirun:
-      command += ["mpirun"]
-      if state.general.mpirun_procs:
-        command += ["-n", str(state.general.mpirun_procs)]
+  if state.general.mpirun:
+    command += ["mpirun"]
+    if state.general.mpirun_procs:
+      command += ["-n", str(state.general.mpirun_procs)]
     command += ["pflotran"]
-    if state.general.mute_simulation_output:
-      command += ["-screen_output", "off"]
+  if state.general.mute_simulation_output:
+    command += ["-screen_output", "off"]
+  if state.general.mpirun_gpu:
+    command += [
+      "-vec_type", "cuda",
+      "-mat_type", "aijcusparse",
+      "-dm_vec_type", "cuda",
+      "-dm_mat_type", "aijcusparse",
+      "-flow_vec_type", "cuda",
+      "-flow_mat_type", "aijcusparse",
+      "-snes_type", "newtonls",
+      "-ksp_type", "cg", "-pc_type", "jacobi", # or
+      # "-ksp_type", "gmres", "-pc_type", "gamg",
+      # "-logview"
+    ]
 
   progress_bar = tqdm(total=27.5, desc="Simulation Progress", unit="year")
 
@@ -75,7 +73,7 @@ def run_simulation(datapoint_path, state):
 
 def simulation_stage(state: State):
   """
-  Runs the pflotran simulation in parallel.
+  Runs the pflotran simulation.
   The function changes the cwd into each of the datapoints directories.
   Then, in the respective datapoint dir, it runs the pflotran simulation either with mpirun or directly depending on
   `vampireman.data_structures.GeneralConfig.mpirun`.
@@ -93,15 +91,5 @@ def simulation_stage(state: State):
     if make_simulation:
       datapoint_paths.append(datapoint_path)
 
-  with ThreadPoolExecutor() as executor:
-    futures = {
-      executor.submit(run_simulation, datapoint_path, state): datapoint_path
-      for datapoint_path in datapoint_paths
-    }
-
-    for future in as_completed(futures):
-      datapoint_path = futures[future]
-      try:
-        future.result()
-      except Exception as e:
-        logging.error(f"Simulation failed for {datapoint_path}: {e}")
+  for datapoint_path in datapoint_paths:
+    run_simulation(datapoint_path, state)

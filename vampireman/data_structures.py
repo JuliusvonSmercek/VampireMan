@@ -510,6 +510,15 @@ class GeneralConfig(BaseModel):
     Therefore, the value of `1` is the default.
     """
 
+    mpirun_gpu: bool = True
+    """
+    When `GeneralConfig.mpirun_gpu` is set to `True`, the simulation tool is run with GPU support.
+    This requires that the simulation tool was compiled with GPU support.
+
+    Attention: Please set `GeneralConfig.mpirun_procs` accordingly to the number of available GPUs, e.g. if you have 2
+    GPUs, set `GeneralConfig.mpirun_procs` to `2`.
+    """
+
     mute_simulation_output: bool = False
     """
     Some simulation tools produce output that can be muted.

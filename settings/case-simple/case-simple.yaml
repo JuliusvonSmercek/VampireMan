@@ -2,7 +2,8 @@ general:
   output_directory: ./datasets_out/case-simple
   number_cells: [2560,2560,1]
   number_datapoints: 4
-  mpirun_procs: 10
+  mpirun_procs: 2
+  mpirun_gpu: true
 heatpump_parameters:
   hps:
     vary: spatially_vary_within_datapoint
