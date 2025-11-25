@@ -18,13 +18,27 @@ def run_simulation(datapoint_path, state):
   stderr_file_path = os.path.join(datapoint_path, "simulation_stderr.log")
 
   command: list[str] = []
-  if state.general.mpirun:
-    command += ["mpirun"]
-    if state.general.mpirun_procs:
-      command += ["-n", str(state.general.mpirun_procs)]
-  command += ["pflotran"]
-  if state.general.mute_simulation_output:
-    command += ["-screen_output", "off"]
+  use_gpu = False
+  if use_gpu:
+    command += ["mpirun", "-n", "2", # use number of gpus available
+                "pflotran",
+                "-vec_type", "cuda",
+                "-mat_type", "aijcusparse",
+                "-dm_vec_type", "cuda",
+                "-dm_mat_type", "aijcusparse",
+                "-flow_vec_type", "cuda",
+                "-flow_mat_type", "aijcusparse",
+                "-snes_type", "newtonls",
+                # "-ksp_type", "cg", "-pc_type", "jacobi", # or
+                "-ksp_type", "gmres", "-pc_type", "gamg"]
+  else:
+    if state.general.mpirun:
+      command += ["mpirun"]
+      if state.general.mpirun_procs:
+        command += ["-n", str(state.general.mpirun_procs)]
+    command += ["pflotran"]
+    if state.general.mute_simulation_output:
+      command += ["-screen_output", "off"]
 
   progress_bar = tqdm(total=27.5, desc="Simulation Progress", unit="year")
 

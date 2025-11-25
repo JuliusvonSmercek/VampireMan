@@ -21,7 +21,7 @@ def test_simulation(mock_run):
     state = preparation_stage(state)
     simulation_stage(state)
     assert mock_run.call_count == 5
-    mock_run.assert_called_with(["mpirun", "-n", "1", "--", "pflotran"], check=True, close_fds=True)
+    mock_run.assert_called_with(["mpirun", "-n", "1", "pflotran"], check=True, close_fds=True)
 
     state.general.mpirun = False
     state = preparation_stage(state)
@@ -33,4 +33,4 @@ def test_simulation(mock_run):
     state.general.mute_simulation_output = True
     state = preparation_stage(state)
     simulation_stage(state)
-    mock_run.assert_called_with(["mpirun", "--", "pflotran", "-screen_output", "off"], check=True, close_fds=True)
+    mock_run.assert_called_with(["mpirun", "pflotran", "-screen_output", "off"], check=True, close_fds=True)
