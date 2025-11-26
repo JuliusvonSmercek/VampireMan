@@ -1,0 +1,24 @@
+general:
+  output_directory: ./datasets_out/case-prolonged-seasons
+  number_cells: [2560,2560,1]
+  number_datapoints: 4
+  mpirun_procs: 10
+heatpump_parameters:
+  hps:
+    vary: spatially_vary_within_datapoint
+    value: ./settings/case-simple/hps_settings.json
+hydrogeological_parameters:
+  pressure_gradient:
+    vary: fixed
+    value: -0.003
+  permeability:
+    vary: spatially_vary_within_datapoint
+    distribution: logarithmic
+    value:
+      frequency:
+        min: 18
+        max: 19
+      max: 5.09683995922528e-09
+      min: 1.0193679918450561e-11
+  porosity:
+    value: 0.25
