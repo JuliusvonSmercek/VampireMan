@@ -151,17 +151,84 @@ def handle_heatpump_values(rand: np.random.Generator, hp_data: HeatPump) -> Heat
     return hp_data
 
 
+def calculate_unet_output(
+    input_size: int,
+    kernel_size: int,
+    stride: int,
+    padding: int,
+    depth: int,
+    convs_per_block: int
+) -> int:
+    """
+    Calculates the valid output size of a U-Net architecture.
+    
+    Args:
+        input_size: Dimension of the square input image.
+        kernel_size: Size of the convolution kernel.
+        stride: Stride of the convolution.
+        padding: Zero-padding added to both sides.
+        depth: Number of downsampling/upsampling levels.
+        convs_per_block: Number of convolution layers per depth level.
+        
+    Returns:
+        The final spatial dimension (height/width) of the output.
+        
+    Raises:
+        ValueError: If feature map size becomes <= 0 during processing.
+    """
+
+    def apply_conv_block(size: int) -> int:
+        """Applies N convolutions sequentially using: O = floor((I - K + 2P) / S) + 1"""
+        for _ in range(convs_per_block):
+            size = (size - kernel_size + 2 * padding) // stride + 1
+            if size <= 0:
+                raise ValueError(f"Feature map collapsed to {size} during encoding.")
+        return size
+
+    current_size = input_size
+
+    # 1. Encoder Path (Conv Block -> MaxPool)
+    for _ in range(depth):
+        current_size = apply_conv_block(current_size)
+        current_size //= 2
+
+    # 2. Bottleneck (Conv Block only)
+    current_size = apply_conv_block(current_size)
+
+    # 3. Decoder Path (Upsample -> Conv Block)
+    for _ in range(depth):
+        current_size *= 2
+        current_size = apply_conv_block(current_size)
+
+    return current_size
+
+
+
 def generate_heatpump_location(state: State) -> list[float]:
     """
     Return a list of three random float values, cell based.
     """
 
+    assert 3 == len(state.general.number_cells)
+    assert 1 == state.general.number_cells[2]
+
+    complete_area = state.general.number_cells
+    inner_area = [0, 0, 1]
+    for i in [0, 1]:
+      inner_area[i] = calculate_unet_output(
+        input_size = complete_area[i],
+        kernel_size = state.general.model_parameters.kernel_size,
+        stride = state.general.model_parameters.stride,
+        padding = state.general.model_parameters.padding,
+        depth = state.general.model_parameters.depth,
+        convs_per_block = state.general.model_parameters.convs_per_block
+      )
+      inner_area[i] *= 1 - state.general.model_parameters.boundary_buffer
+
+    offset = (complete_area - inner_area) / 2
+
     random_vector = state.get_rng().random(3)
-    number_cells = np.array([state.general.number_cells[0],state.general.number_cells[1],1]) - np.array([152,152,0])    
-    cut_off = (state.general.number_cells - number_cells)
-    viable_cells = number_cells +  np.array([cut_off[0]/2, cut_off[1]/2, 0]) # To avoid placing heat pumps on the edges
-    random_location = random_vector * cast(np.ndarray, viable_cells)
-    #random_location = random_vector * cast(np.ndarray, state.general.number_cells)
+    random_location = offset + random_vector * cast(np.ndarray, inner_area)
     return cast(list[float], np.ceil(random_location).tolist())
 
 

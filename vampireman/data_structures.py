@@ -411,6 +411,21 @@ class DataPoint(BaseModel):
         return f"=== DataPoint #{self.index}\n" f"{"\n".join(data_strings)}"
 
 
+class ModelParameters(BaseModel):
+    """
+    This class holds model parameters for the neural network.
+
+    This information will be used to calculate what the output size of the model will be, such that heatpumps can be places only within the valid output region.
+    """
+
+    kernel_size: int
+    stride: int
+    padding: int
+    depth: int
+    convs_per_block: int
+    boundary_buffer: float  # buffer around the output region where heatpumps cannot be placed in percent
+
+
 class GeneralConfig(BaseModel):
     """
     The `GeneralConfig` holds values that don't change during execution of the program.
@@ -510,7 +525,7 @@ class GeneralConfig(BaseModel):
     Therefore, the value of `1` is the default.
     """
 
-    mpirun_gpu: bool = True
+    mpirun_gpu: bool = False
     """
     When `GeneralConfig.mpirun_gpu` is set to `True`, the simulation tool is run with GPU support.
     This requires that the simulation tool was compiled with GPU support.
@@ -530,6 +545,12 @@ class GeneralConfig(BaseModel):
     Whether to skip the visualization stage or not.
     Useful for generating data sets with many data points.
     """
+
+    model_parameters: ModelParameters = None
+    """
+    If the parameters for the neural network model
+    """
+
 
     # This makes pydantic fail if there is extra data in the YAML settings file that cannot be parsed
     model_config = ConfigDict(extra="forbid")
