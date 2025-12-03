@@ -26,7 +26,7 @@ from h5py import File
 from ..data_structures import HeatPump, HeatPumps, Parameter, State, ValueTimeSeries
 from ..utils import create_dataset_and_datapoint_dirs, profile_function
 from ..validation_stage.validation_stage import are_duplicate_locations_in_heatpumps
-from ..variation_stage.vary import generate_heatpump_location
+from ..variation_stage.vary import generate_heatpump_location_min_dist
 
 
 @profile_function
@@ -110,7 +110,9 @@ def generate_heatpumps(state: State) -> State:
             injection_temp = hps.value.injection_temp
             injection_rate = hps.value.injection_rate
 
-            location = generate_heatpump_location(state)
+            min_dist = state.general.model_parameters.min_hp_dist / state.general.cell_resolution
+            heatpumps = cast(list[HeatPump], [param.value for _, param in new_heatpumps.items()])
+            location = generate_heatpump_location_min_dist(state, heatpumps, min_dist)
 
             heatpump = HeatPump(
                 location=cast(list[float], location),
@@ -118,13 +120,6 @@ def generate_heatpumps(state: State) -> State:
                 injection_rate=injection_rate,
             )
             logging.debug("Generated HeatPump %s", heatpump)
-
-            heatpumps = cast(list[HeatPump], [param.value for _, param in new_heatpumps.items()])
-            heatpumps.append(heatpump)
-            while are_duplicate_locations_in_heatpumps(heatpumps):
-                # Generate new heatpump location if the one we had is already taken
-                # TODO write test for this
-                heatpump.location = generate_heatpump_location(state)
 
             new_heatpumps[name] = Parameter(
                 name=name,

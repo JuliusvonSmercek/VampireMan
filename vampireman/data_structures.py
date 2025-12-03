@@ -424,6 +424,7 @@ class ModelParameters(BaseModel):
     depth: int
     convs_per_block: int
     boundary_buffer: float  # buffer around the output region where heatpumps cannot be placed in percent
+    min_hp_dist: float
 
 
 class GeneralConfig(BaseModel):

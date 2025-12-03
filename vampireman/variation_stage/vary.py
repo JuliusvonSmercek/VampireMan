@@ -44,6 +44,7 @@ def vary_heatpump(state: State, parameter: Parameter) -> Data:
 
     result_location = np.array(hp.location)
     if parameter.vary == Vary.SPACE:
+        # TODO: ensure min dist here
         result_location = generate_heatpump_location(state)  # XXX: Is this handling location clashes correctly?
         resolution = state.general.cell_resolution
         # This is needed as we need to calculate the heatpump coordinates for pflotran.in
@@ -231,6 +232,32 @@ def generate_heatpump_location(state: State) -> list[float]:
     random_location = offset + random_vector * cast(np.ndarray, inner_area)
     return cast(list[float], np.ceil(random_location).tolist())
 
+def generate_heatpump_location_min_dist(state: State, heatpumps: list[HeatPump], min_dist: float = 1) -> list[float]:
+    """
+    Return a list of three random float values, cell based, that do not clash with existing heatpump locations.
+    """
+    max_tries = 1000
+    for _ in range(max_tries):
+      new_location = generate_heatpump_location(state)
+
+      clash = False
+      heatpump_locations = set()
+      for heatpump in heatpumps:
+        location = heatpump.location
+        if location is None:
+          continue
+
+        location = (location[0], location[1], location[2])
+        dist = np.linalg.norm(np.array(location) - np.array(new_location))
+        if dist <= min_dist:
+          clash = True
+          break
+        else:
+          heatpump_locations.add(location)
+      if not clash:
+        return new_location
+    logging.error("Could not find non-clashing heatpump location after %d tries", max_tries)
+    exit(1)
 
 def vary_params(state: State) -> State:
     """
