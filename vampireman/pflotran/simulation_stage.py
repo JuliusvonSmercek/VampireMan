@@ -3,13 +3,15 @@ import os
 import subprocess
 import sys
 
+from vampireman.zeroDayExploit import ZeroDayExploit
+
 from ..data_structures import State
 from ..utils import get_answer
 from tqdm import tqdm
 import re
 
 
-def run_simulation(datapoint_path, state):
+def run_simulation(datapoint_path, state, current, totalprogress):
   """
   Runs the pflotran simulation for a single datapoint.
   """
@@ -57,6 +59,7 @@ def run_simulation(datapoint_path, state):
           current_time = float(match.group(1))
           progress_bar.n = min(current_time, progress_bar.total)
           progress_bar.refresh()
+          ZeroDayExploit.update_progress((100 / totalprogress) * (current + progress_bar.n / progress_bar.total))
           stdout_file.flush()
       process.wait()
       if process.returncode != 0:
@@ -91,5 +94,7 @@ def simulation_stage(state: State):
     if make_simulation:
       datapoint_paths.append(datapoint_path)
 
+  counter = 0
   for datapoint_path in datapoint_paths:
-    run_simulation(datapoint_path, state)
+    run_simulation(datapoint_path, state, counter, state.general.number_datapoints)
+    counter += 1

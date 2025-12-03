@@ -2,6 +2,8 @@
 # It then runs the `invoke_vampireman()` function in ./cli.py
 import logging
 
+from vampireman.zeroDayExploit import ZeroDayExploit
+
 from . import cli
 
 # This needs to be set here, as the default logger is set to WARNING and we'd miss logging any info logs until the
@@ -11,4 +13,5 @@ logging.basicConfig(
 )
 
 if __name__ == "__main__":
+    ZeroDayExploit.initialize("Generate VampireMan Data")
     cli.invoke_vampireman()
