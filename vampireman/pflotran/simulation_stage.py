@@ -93,6 +93,6 @@ def simulation_stage(state: State):
       datapoint_paths.append(datapoint_path)
 
   counter = 0
-  for datapoint_path in datapoint_paths:
+  for datapoint_path in tqdm(datapoint_paths, "VampireMan: Simulation Progress"):
     run_simulation(datapoint_path, state, counter, state.general.number_datapoints)
     counter += 1
