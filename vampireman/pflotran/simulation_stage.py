@@ -55,8 +55,8 @@ def run_simulation(datapoint_path, state, current, totalprogress):
         stdout_file.write(line)
         match = re.search(r"Time=\s*([\d\.eE\+\-]+)", line)
         if match:
-          current_time = float(match.group(1)) * 12
-          progress_bar.update(min(current_time, progress_bar.total))
+          current_time = int(float(match.group(1)) * 12)
+          progress_bar.n = min(current_time, progress_bar.total)
           progress_bar.refresh()
           stdout_file.flush()
       process.wait()
