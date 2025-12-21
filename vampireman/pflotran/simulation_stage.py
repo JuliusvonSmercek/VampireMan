@@ -38,7 +38,7 @@ def run_simulation(datapoint_path, state, current, totalprogress):
       # "-logview"
     ]
 
-  total = 27.5 * 12
+  total = int(27.5 * 12)
   progress_bar = tqdm(range(0, total), "Simulation Progress", total=total, unit="year")
 
   stdout_file = open(stdout_file_path, "w")
