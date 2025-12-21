@@ -38,7 +38,8 @@ def run_simulation(datapoint_path, state, current, totalprogress):
       # "-logview"
     ]
 
-  progress_bar = tqdm(total=27.5, desc="Simulation Progress", unit="year")
+  total = 27.5 * 12
+  progress_bar = tqdm(range(0, total), "Simulation Progress", total=total, unit="year")
 
   stdout_file = open(stdout_file_path, "w")
   stderr_file = open(stderr_file_path, "w")
@@ -54,8 +55,8 @@ def run_simulation(datapoint_path, state, current, totalprogress):
         stdout_file.write(line)
         match = re.search(r"Time=\s*([\d\.eE\+\-]+)", line)
         if match:
-          current_time = float(match.group(1))
-          progress_bar.n = min(current_time, progress_bar.total)
+          current_time = float(match.group(1)) * 12
+          progress_bar.update(min(current_time, progress_bar.total))
           progress_bar.refresh()
           stdout_file.flush()
       process.wait()
