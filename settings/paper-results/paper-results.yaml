@@ -1,0 +1,37 @@
+general:
+  output_directory: ./datasets_out/case-quick-test_new
+  number_cells: [1000,1000,1]
+  number_datapoints: 12
+  mpirun_procs: 100
+  random_seed: 2406
+  mpirun_gpu: false
+  cell_resolution: 5.0
+  time_to_simulate:
+    final_time: 25
+  model_parameters:
+    kernel_size: 5
+    stride: 1
+    padding: 0
+    depth: 5
+    convs_per_block: 1
+    boundary_buffer: 0.025 # buffer around the output region where heatpumps cannot be placed in percent
+    min_hp_dist: 42.0
+heatpump_parameters:
+  hps:
+    vary: spatially_vary_within_datapoint
+    value: ./settings/paper-results/hps_settings.json
+hydrogeological_parameters:
+  pressure_gradient:
+    vary: fixed
+    value: -0.002
+  permeability:
+    vary: spatially_vary_within_datapoint
+    distribution: logarithmic
+    value:
+      frequency:
+        min: 18
+        max: 19
+      max: 5.09683995922528e-09
+      min: 1.0193679918450561e-11
+  porosity:
+    value: 0.25
