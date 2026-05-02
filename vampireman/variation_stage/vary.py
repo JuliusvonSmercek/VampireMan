@@ -215,17 +215,19 @@ def generate_heatpump_location(state: State) -> list[float]:
 
     complete_area = state.general.number_cells
     inner_area = [0, 0, 1]
-    for i in [0, 1]:
-      inner_area[i] = calculate_unet_output(
-        input_size = complete_area[i],
-        kernel_size = state.general.model_parameters.kernel_size,
-        stride = state.general.model_parameters.stride,
-        padding = state.general.model_parameters.padding,
-        depth = state.general.model_parameters.depth,
-        convs_per_block = state.general.model_parameters.convs_per_block
-      )
-      inner_area[i] *= 1 - state.general.model_parameters.boundary_buffer
-
+    if True:
+       inner_area = complete_area
+    else:
+      for i in [0, 1]:
+        inner_area[i] = calculate_unet_output(
+          input_size = complete_area[i],
+          kernel_size = state.general.model_parameters.kernel_size,
+          stride = state.general.model_parameters.stride,
+          padding = state.general.model_parameters.padding,
+          depth = state.general.model_parameters.depth,
+          convs_per_block = state.general.model_parameters.convs_per_block
+        )
+        inner_area[i] *= 1 - state.general.model_parameters.boundary_buffer
     offset = (complete_area - inner_area) / 2
 
     random_vector = state.get_rng().random(3)
