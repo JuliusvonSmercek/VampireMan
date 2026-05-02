@@ -23,7 +23,7 @@ from .loading_stage import loading_stage
 from .preparation_stage import preparation_stage
 from .render_stage import render_stage
 from .simulation_stage import simulation_stage
-from .utils import get_answer, copy_settings_to_yaml
+from .utils import copy_settings_to_yaml, get_answer
 from .validation_stage import validation_stage
 from .variation_stage import variation_stage
 from .visualization_stage import visualization_stage

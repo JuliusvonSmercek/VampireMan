@@ -170,7 +170,7 @@ def write_data_to_verified_json_file(state: "State", target_path: Path, data: Ba
 def copy_settings_to_yaml(args, state):
     # copy file to output directory: self.general.output_directory / "settings.yaml"
     if args.settings_file:
-        with open(args.settings_file, "r") as f:
+        with open(args.settings_file) as f:
             settings = f.read()
         with open(state.general.output_directory / "settings.yaml", "w") as f:
             f.write(settings)
