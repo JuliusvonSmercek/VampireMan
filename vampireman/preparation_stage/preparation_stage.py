@@ -110,9 +110,8 @@ def generate_heatpumps(state: State) -> State:
             injection_temp = hps.value.injection_temp
             injection_rate = hps.value.injection_rate
 
-            min_dist = state.general.min_hp_dist / state.general.cell_resolution
-            heatpumps = cast(list[HeatPump], [param.value for _, param in new_heatpumps.items()])
-            location = generate_heatpump_location_min_dist(state, heatpumps, min_dist)
+            heatpump_locations = cast(list[list[float]], [hp.value.location for _, hp in new_heatpumps.items() if hp.value.location is not None])
+            location = generate_heatpump_location_min_dist(state, heatpump_locations)
 
             heatpump = HeatPump(
                 location=cast(list[float], location),

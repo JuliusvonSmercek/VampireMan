@@ -27,11 +27,11 @@ def copy_parameter(state: State, parameter: Parameter) -> Data:
     """
 
     if isinstance(parameter.value, HeatPump):
-        return vary_heatpump(state, parameter)
+        return vary_heatpump(state, parameter, [])
     return Data(name=parameter.name, value=deepcopy(parameter.value))
 
 
-def vary_heatpump(state: State, parameter: Parameter) -> Data:
+def vary_heatpump(state: State, parameter: Parameter, heatpump_locations: list[list[float]]) -> Data:
     """
     This function calculates operational parameters for `vampireman.data_structures.HeatPump`s.
     If the `vampireman.data_structures.Vary` mode is SPACE, the location will be drawn randomly.
@@ -44,8 +44,7 @@ def vary_heatpump(state: State, parameter: Parameter) -> Data:
 
     result_location = np.array(hp.location)
     if parameter.vary == Vary.SPACE:
-        # TODO: ensure min dist here
-        result_location = generate_heatpump_location(state)  # XXX: Is this handling location clashes correctly?
+        result_location = generate_heatpump_location_min_dist(state, heatpump_locations)
         resolution = state.general.cell_resolution
         # This is needed as we need to calculate the heatpump coordinates for pflotran.in
         result_location = (np.array(result_location) - 1) * resolution + (resolution * 0.5)
@@ -60,7 +59,7 @@ def vary_heatpump(state: State, parameter: Parameter) -> Data:
     )
 
 
-def vary_parameter(state: State, parameter: Parameter, index: int) -> Data:
+def vary_parameter(state: State, parameter: Parameter, index: int, heatpump_locations: list[list[float]]) -> Data:
     """
     This function does the variation of `vampireman.data_structures.Parameter`s.
     It does so by implementing a large match-case that in turn invokes other functions that then work on the
@@ -114,7 +113,7 @@ def vary_parameter(state: State, parameter: Parameter, index: int) -> Data:
                 )
             # This should be inside the CONST block, yet it seems to make more sense to users to find it here
             elif isinstance(parameter.value, HeatPump):
-                data = vary_heatpump(state, parameter)
+                data = vary_heatpump(state, parameter, heatpump_locations)
             elif isinstance(parameter.value, ValueMinMax):
                 raise ValueError(
                     f"Parameter {parameter.name} is vary.space and has min/max values, "
@@ -157,28 +156,23 @@ def generate_heatpump_location(state: State) -> list[float]:
     Return a list of three random float values, cell based.
     """
 
-    assert 3 == len(state.general.number_cells)
-    assert 1 == state.general.number_cells[2]
-
-    complete_area = state.general.number_cells
-    inner_area = complete_area - 2 * state.general.heatpump_boundary_offset
-
     random_vector = state.get_rng().random(3)
+    inner_area = state.general.number_cells - 2 * state.general.heatpump_boundary_offset
     random_location = state.general.heatpump_boundary_offset + random_vector * np.array(inner_area)
     return cast(list[float], np.ceil(random_location).tolist())
 
-def generate_heatpump_location_min_dist(state: State, heatpumps: list[HeatPump], min_dist: float = 1) -> list[float]:
+
+def generate_heatpump_location_min_dist(state: State, heatpump_locations: list[list[float]]) -> list[float]:
     """
     Return a list of three random float values, cell based, that do not clash with existing heatpump locations.
     """
+    min_dist = state.general.min_hp_dist / state.general.cell_resolution
     max_tries = 1000
     for _ in range(max_tries):
       new_location = generate_heatpump_location(state)
 
       clash = False
-      heatpump_locations = set()
-      for heatpump in heatpumps:
-        location = heatpump.location
+      for location in heatpump_locations:
         if location is None:
           continue
 
@@ -187,9 +181,8 @@ def generate_heatpump_location_min_dist(state: State, heatpumps: list[HeatPump],
         if dist <= min_dist:
           clash = True
           break
-        else:
-          heatpump_locations.add(location)
       if not clash:
+        heatpump_locations.append(new_location)
         return new_location
     logging.error("Could not find non-clashing heatpump location after %d tries", max_tries)
     exit(1)
@@ -205,8 +198,9 @@ def vary_params(state: State) -> State:
 
         # This syntax merges the hydrogeological_parameters and the heatpump_parameters dicts so we don't have to write
         # two separate for loops
+        heatpump_locations = [item.value.location for item in state.heatpump_parameters.values() if item.value.location is not None]
         for _, parameter in (state.hydrogeological_parameters | state.heatpump_parameters).items():
-            parameter_data = vary_parameter(state, parameter, datapoint_index)
+            parameter_data = vary_parameter(state, parameter, datapoint_index, heatpump_locations)
             data[parameter.name] = parameter_data
 
         state.datapoints.append(DataPoint(index=datapoint_index, data=data))

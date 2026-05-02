@@ -8,7 +8,7 @@ general:
   time_to_simulate:
     final_time: 27.5
   mpirun_gpu: false
-  min_hp_dist: 42.0
+  min_hp_dist: 0.0
   heatpump_boundary_offset: [0, 0, 0]
 heatpump_parameters:
   hps:

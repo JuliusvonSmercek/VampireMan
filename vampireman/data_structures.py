@@ -540,7 +540,7 @@ class GeneralConfig(BaseModel):
 
     min_hp_dist: float = 42.0
     """
-    In meters. This attribute can be used to ensure that when `HeatPump` locations are varied spatially, they are not placed too close to each other.
+    In meters, should be always at least cell size. This attribute can be used to ensure that when `HeatPump` locations are varied spatially, they are not placed too close to each other.
     """
 
 
