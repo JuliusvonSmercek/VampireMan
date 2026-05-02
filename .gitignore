@@ -3,9 +3,6 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-case-quick-test.yaml
-case-quick-test.json
-
 # C extensions
 *.so
 

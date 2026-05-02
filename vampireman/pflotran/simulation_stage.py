@@ -5,7 +5,7 @@ import sys
 
 from ..data_structures import State
 from ..utils import get_answer
-from vampireman.zeroDayExploit import tqdm
+from tqdm import tqdm
 import re
 
 
