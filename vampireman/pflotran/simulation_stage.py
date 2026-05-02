@@ -9,7 +9,7 @@ from tqdm import tqdm
 import re
 
 
-def run_simulation(datapoint_path, state, current, totalprogress):
+def run_simulation(datapoint_path, state):
   """
   Runs the pflotran simulation for a single datapoint.
   """
@@ -38,7 +38,7 @@ def run_simulation(datapoint_path, state, current, totalprogress):
       # "-logview"
     ]
 
-  total = int(27.5 * 12)
+  total = int(state.general.time_to_simulate.final_time * 12)
   progress_bar = tqdm(range(0, total), "Simulation Progress", total=total, unit="year")
 
   stdout_file = open(stdout_file_path, "w")
@@ -92,7 +92,5 @@ def simulation_stage(state: State):
     if make_simulation:
       datapoint_paths.append(datapoint_path)
 
-  counter = 0
   for datapoint_path in tqdm(datapoint_paths, "VampireMan: Simulation Progress"):
-    run_simulation(datapoint_path, state, counter, state.general.number_datapoints)
-    counter += 1
+    run_simulation(datapoint_path, state)

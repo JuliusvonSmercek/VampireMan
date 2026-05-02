@@ -1,25 +1,19 @@
 general:
-  output_directory: ./datasets_out/paper-result-seasonal
+  output_directory: ./datasets_out/seasonal
   number_cells: [1000,1000,1]
   number_datapoints: 26
   mpirun_procs: 100
   random_seed: 2406
-  mpirun_gpu: false
   cell_resolution: 5.0
   time_to_simulate:
     final_time: 27.5
-  model_parameters:
-    kernel_size: 4
-    stride: 1
-    padding: 0
-    depth: 4
-    convs_per_block: 1
-    boundary_buffer: 0.0 # buffer around the output region where heatpumps cannot be placed in percent
-    min_hp_dist: 42.0
+  mpirun_gpu: false
+  min_hp_dist: 42.0
+  heatpump_boundary_offset: [0, 0, 0]
 heatpump_parameters:
   hps:
     vary: spatially_vary_within_datapoint
-    value: ./settings/paper-results/hps_settings.json
+    value: ./settings/seasonal/hps_settings.json
 hydrogeological_parameters:
   pressure_gradient:
     vary: fixed

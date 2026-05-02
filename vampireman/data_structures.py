@@ -411,22 +411,6 @@ class DataPoint(BaseModel):
         return f"=== DataPoint #{self.index}\n" f"{"\n".join(data_strings)}"
 
 
-class ModelParameters(BaseModel):
-    """
-    This class holds model parameters for the neural network.
-
-    This information will be used to calculate what the output size of the model will be, such that heatpumps can be places only within the valid output region.
-    """
-
-    kernel_size: int
-    stride: int
-    padding: int
-    depth: int
-    convs_per_block: int
-    boundary_buffer: float  # buffer around the output region where heatpumps cannot be placed in percent
-    min_hp_dist: float
-
-
 class GeneralConfig(BaseModel):
     """
     The `GeneralConfig` holds values that don't change during execution of the program.
@@ -526,15 +510,6 @@ class GeneralConfig(BaseModel):
     Therefore, the value of `1` is the default.
     """
 
-    mpirun_gpu: bool = False
-    """
-    When `GeneralConfig.mpirun_gpu` is set to `True`, the simulation tool is run with GPU support.
-    This requires that the simulation tool was compiled with GPU support.
-
-    Attention: Please set `GeneralConfig.mpirun_procs` accordingly to the number of available GPUs, e.g. if you have 2
-    GPUs, set `GeneralConfig.mpirun_procs` to `2`.
-    """
-
     mute_simulation_output: bool = False
     """
     Some simulation tools produce output that can be muted.
@@ -547,9 +522,25 @@ class GeneralConfig(BaseModel):
     Useful for generating data sets with many data points.
     """
 
-    model_parameters: ModelParameters = None
+    mpirun_gpu: bool = False
     """
-    If the parameters for the neural network model
+    When `GeneralConfig.mpirun_gpu` is set to `True`, the simulation tool is run with GPU support.
+    This requires that the simulation tool was compiled with GPU support.
+
+    Attention: Please set `GeneralConfig.mpirun_procs` accordingly to the number of available GPUs, e.g. if you have 2
+    GPUs, set `GeneralConfig.mpirun_procs` to `2`.
+    """
+
+    heatpump_boundary_offset: NDArray[Shape["3 number_cells"], int] | NDArray[Shape["2 number_cells"], int] = Field(  # pyright: ignore[reportInvalidTypeArguments]
+        default_factory=lambda: np.array([0, 0, 0])
+    )
+    """
+    In Cells. This attribute can be used to ensure that when `HeatPump` locations are varied spatially, they only appear in the middle of the domain and not close to the boundaries. E.g. if `number_cells = [100, 100, 1]` and `heatpump_only_in_mid = [10, 10, 0]`, heatpumps will only be placed in the area between cell 10 and cell 90 in x and y direction.
+    """
+
+    min_hp_dist: float = 42.0
+    """
+    In meters. This attribute can be used to ensure that when `HeatPump` locations are varied spatially, they are not placed too close to each other.
     """
 
 
