@@ -101,3 +101,29 @@ Further, all cases have the similarities:
 | [9](./settings/case9_seasonal-changes.yaml)    | (32,512,1)    | 1            | 2 fix          | fix          | fix               | time based changes in heat pump injection temperature and rate   |
 | [10](./settings/case10_all-features.yaml)      | (32,256,1)    | 3            | 2 fix, 5 space | space        | fix               | case shows all supported features of the software                |
 | [11](./settings/case11_large-domain.yaml)      | (320,2560,32) | 1            | 50 space       | space        | fix               |                                                                  |
+| [seasonal](./settings/seasonal/seasonal.yaml)  | (1000,1000,1) | 26           | 15 space       | space        | fix               |                                                                  |
+
+
+## Additional Authors
+
+Julius von Smercek and Johanna Betz contributed the seasonal test case and usability improvements.
+
+### Seasonal test case
+
+The seasonal case is defined in [`./settings/seasonal/seasonal.yaml`](./settings/seasonal/seasonal.yaml). It models one full year with 26 data points and uses seasonal heating and cooling load ratios (`heating_load_ratio.csv` and `cooling_load_ratio.csv`) derived from [https://github.com/tum-ens/UrbanHeatPro](https://github.com/tum-ens/UrbanHeatPro) together with building data from Munich.
+
+Run it like the other example cases by passing the settings file to the program:
+
+```bash
+python -m vampireman ./settings/seasonal/seasonal.yaml
+```
+
+The PFLOTRAN template assumes cyclic injection data by default and stores intermediate results every 0.5 years.
+
+### Related changes
+
+- fixed a compatibility issue with PFLOTRAN command-line arguments
+- added visualization of progress and an estimate when data generation has finished
+- added GPU-based data generation
+- added support for placing randomly generated heat pumps in the middle of the domain instead of near the boundaries
+- added support for specifying the minimum distance between two randomly generated heat pump locations
